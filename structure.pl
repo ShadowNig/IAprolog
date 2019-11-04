@@ -1,20 +1,17 @@
-%%A struct will be a list of 9 positions, with the numbers 1 to 8 and blank
 
+%some util relations
 position(X,[X|_], 0).
 position(X,[_|L],Z) :- position(X,L,Y), Z is Y+1.
 
-isCorner(X,L) :- position(X,L,0),!.
-isCorner(X,L) :- position(X,L,2),!.
-isCorner(X,L) :- position(X,L,6),!.
-isCorner(X,L) :- position(X,L,8),!.
+substitute(_,[],_,[]) :- !.
+substitute(0,[_|L], V, [V|L]):- !.
+substitute(I,[X|L], V, [X|K]) :- J is I-1, substitute(J,L,V,K).
 
-isMiddle(X,L) :- position(X,L,1),!.
-isMiddle(X,L) :- position(X,L,3),!.
-isMiddle(X,L) :- position(X,L,5),!.
-isMiddle(X,L) :- position(X,L,7),!.
+swap(I,J,L1, L3) :- position(V1,L1,J),position(V2,L1,I),substitute(I,L1,V1,L2),substitute(J,L2,V2,L3).
 
-isCenter(X,L) :- position(X,L,4),!.
 
+%Now start the problem-specific relations
+%A struct will be a list of 9 positions, with the numbers 1 to 8 and blank
 
 neighboard(0,1).
 neighboard(1,0).
@@ -52,14 +49,31 @@ neighboard(7,6).
 neighboard(7,8).
 neighboard(8,7).
 
-
-substitute(_,[],_,[]) :- !.
-substitute(0,[_|L], V, [V|L]):- !.
-substitute(I,[X|L], V, [X|K]) :- J is I-1, substitute(J,L,V,K).
-
-swap(I,J,L1, L3) :- position(V1,L1,J),position(V2,L1,I),substitute(I,L1,V1,L2),substitute(J,L2,V2,L3).
-
-
-%%Now we need to put the next relation
-
 next(L1,L2) :- position(blank,L1,I), neighboard(I,J), swap(I,J,L1,L2).
+
+objective([1,2,3,4,5,6,7,8,blank]).
+
+myWrite(blank) :- write(" "),!.
+myWrite(X) :- write(X),!.
+
+prettyPrint([]) :- write("\n").
+prettyPrint([X,Y,Z|XS]) :- myWrite(X), write(" "), myWrite(Y),write(" "), myWrite(Z),write("\n"),prettyPrint(XS).
+
+printSolution([]).
+printSolution([T|TS]) :- prettyPrint(T), printSolution(TS).
+
+
+%resolution algorithms
+
+depthFirst(I,S,Sol) :-
+		objective(I),
+		reverse([I|S],Sol).
+depthFirst(I,S,S1) :-
+		not(objective(I)),
+		next(I,N),
+		not(member(N,S)),
+		depthFirst(N,[I|S],S1).
+
+sol(I) :- depthFirst(I,[],S), printSolution(S),!.
+
+
