@@ -1,4 +1,3 @@
-
 %some util relations
 position(X,[X|_], 0).
 position(X,[_|L],Z) :- position(X,L,Y), Z is Y+1.
@@ -74,6 +73,34 @@ depthFirst(I,S,S1) :-
 		not(member(N,S)),
 		depthFirst(N,[I|S],S1).
 
+isNotMember([],_,[]).
+isNotMember([X|XS],L,[X|YS]) :-
+    not(member(X,L)),
+    isNotMember(XS,L,YS).
+isNotMember([X|XS],L,L2) :-
+    member(X,L),
+    isNotMember(XS,L,L2).
+
+putFront([],_,[]).
+putFront([X|XS],L,[[X|L]|YS]) :-
+         putFront(XS,L,YS).
+
+breadthFirst([[X|XS]|_],Sol) :-
+    objective(X),
+    reverse([X|XS],Sol).
+breadthFirst([[X|XS]|LS], Sol) :-
+    not(objective(X)),
+    findall(K,next(X,K),L),
+    isNotMember(L,[X|XS],L2),
+    putFront(L2,[X|XS],L3),
+    append(LS,L3,L4),
+    breadthFirst(L4,Sol).
+
+
+
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
+sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
+
+
 
 
