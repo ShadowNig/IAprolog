@@ -96,11 +96,55 @@ breadthFirst([[X|XS]|LS], Sol) :-
     append(LS,L3,L4),
     breadthFirst(L4,Sol).
 
+correctDoublePosition(blank,[3,3]):-!.
+correctDoublePosition(X,[P1,P2]) :-
+					P1 is X/3,
+					P2 is mod(X,3)-1,
+					!.
+				
+
+manhatham([X|L],MX) :-
+			
+
+findBetterManhatham([Unique],Unique,[]).
+findBetterManhatham([X,Y|L],Bet,[Y|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					manhatham(X,MX),
+					manhatham(Y,MY),
+					RX is LX + MX,
+					RY is LY + MY,
+					RX > RY,
+					findBetterManhatham([X|L],Bet,R).
+findBetterManhatham([X,Y|L],Bet,[X|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					manhatham(X,MX),
+					manhatham(Y,MY),
+					RX is LX + MX,
+					RY is LY + MY,
+					RX <= RY,
+					findBetterManhatham([Y|L],Bet,R).
+
+
+aStarManhatham(Paths,Sol) :- 
+						findBetterManhatham(Paths,Better,Rest),
+						not(objective(Better)),
+						expand(Better,Betters),
+						append(Betters,Rest,L3),
+						aStarManhatham(L3,Sol).
+aStarManhatham(Paths,Sol) :-
+						findBetterManhatham(Paths,Better,_),
+						objective(Better),
+						Sol is Better.
+
+
 
 
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
-
+sol3(I) :- aStarManhatham([[[I],[]]],Sol),printSolution(Sol),!.
+sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
 
 
 
