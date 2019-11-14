@@ -99,11 +99,21 @@ breadthFirst([[X|XS]|LS], Sol) :-
     breadthFirst(L4,Sol).
 
 
-manhatham([X|_],MX) :- 
+manhatham([X|_],MX) :- objective(G), manhathamAux(X,G,MX).
+manhathamAux([],[],0).
+manhathamAux([X|L],[G1|GS],MX) :-
+				manhathamAux(L,GS,MXR),
+				correctDoublePosition(X,[A1,A2]),
+				correctDoublePosition(G1,[B1,B2]),
+				Diffx is A1-B1,
+				Diffy is A2-B2,
+				Absx is abs(Diffx),
+				Absy is abs(Diffy),
+				MX is MXR+Absx+Absy.
 			
 			
 
-findBetterManhatham([Unique],Unique,[]).
+findBetterManhatham([Unique],Unique,[]) :- !.
 findBetterManhatham([X,Y|L],Bet,[Y|R]) :-
 					length(X,LX),
 					length(Y,LY),
@@ -123,7 +133,18 @@ findBetterManhatham([X,Y|L],Bet,[X|R]) :-
 					RX =< RY,
 					findBetterManhatham([Y|L],Bet,R).
 
+notMembers([],_,[]).
+notMembers([X|XS],L,YS) :- member(X,L),notMembers(XS,L,YS).
+notMembers([X|XS],L,[X|YS]) :- not(member(X,L)), notMembers(XS,L,YS).
 
+appends([],_,[]).
+appends([X|XS],L,[[X|L]|K]) :-
+				appends(XS,L,K).
+
+expand([Atual|BetterS],Betters) :-
+					findall(X,next(Atual,X),L),
+					notMembers(L,[Atual|BetterS],N),
+					appends(N,[Atual|BetterS],Betters).
 aStarManhatham(Paths,Sol) :- 
 						findBetterManhatham(Paths,Better,Rest),
 						not(objective(Better)),
@@ -131,8 +152,11 @@ aStarManhatham(Paths,Sol) :-
 						append(Betters,Rest,L3),
 						aStarManhatham(L3,Sol).
 aStarManhatham(Paths,Sol) :-
+						write('really, I am here'),nl,
 						findBetterManhatham(Paths,Better,_),
+						write('Or maybe not'),nl,
 						objective(Better),
+						write(Better),nl,
 						Sol is Better.
 
 
@@ -140,8 +164,8 @@ aStarManhatham(Paths,Sol) :-
 
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
-sol3(I) :- aStarManhatham([[[I],[]]],Sol),printSolution(Sol),!.
-sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
+sol3(I) :- aStarManhatham([I],Sol),printSolution(Sol),!.
+%sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
 
 
 
