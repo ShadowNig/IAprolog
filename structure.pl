@@ -60,6 +60,8 @@ prettyPrint([X,Y,Z|XS]) :- myWrite(X), write(" "), myWrite(Y),write(" "), myWrit
 
 printSolution([]).
 printSolution([T|TS]) :- prettyPrint(T), printSolution(TS).
+correctDoublePosition(blank,[2,2]) :- !.
+correctDoublePosition(X,[P1,P2]) :- number(X),W is X-1,P1 is div(W,3), P2 is mod(W,3).
 
 
 %resolution algorithms
@@ -96,14 +98,9 @@ breadthFirst([[X|XS]|LS], Sol) :-
     append(LS,L3,L4),
     breadthFirst(L4,Sol).
 
-correctDoublePosition(blank,[3,3]):-!.
-correctDoublePosition(X,[P1,P2]) :-
-					P1 is X/3,
-					P2 is mod(X,3)-1,
-					!.
-				
 
-manhatham([X|L],MX) :-
+manhatham([X|_],MX) :- 
+			
 			
 
 findBetterManhatham([Unique],Unique,[]).
@@ -123,7 +120,7 @@ findBetterManhatham([X,Y|L],Bet,[X|R]) :-
 					manhatham(Y,MY),
 					RX is LX + MX,
 					RY is LY + MY,
-					RX <= RY,
+					RX =< RY,
 					findBetterManhatham([Y|L],Bet,R).
 
 
