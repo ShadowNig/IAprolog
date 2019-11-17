@@ -119,8 +119,8 @@ findBetterManhatham([X,Y|L],Bet,[Y|R]) :-
 					length(Y,LY),
 					manhatham(X,MX),
 					manhatham(Y,MY),
-					RX is LX + MX,
-					RY is LY + MY,
+					RX is -LX - MX,
+					RY is -LY - MY,
 					RX > RY,
 					findBetterManhatham([X|L],Bet,R).
 findBetterManhatham([X,Y|L],Bet,[X|R]) :-
@@ -128,8 +128,8 @@ findBetterManhatham([X,Y|L],Bet,[X|R]) :-
 					length(Y,LY),
 					manhatham(X,MX),
 					manhatham(Y,MY),
-					RX is LX + MX,
-					RY is LY + MY,
+					RX is -LX - MX,
+					RY is -LY - MY,
 					RX =< RY,
 					findBetterManhatham([Y|L],Bet,R).
 
@@ -145,27 +145,53 @@ expand([Atual|BetterS],Betters) :-
 					findall(X,next(Atual,X),L),
 					notMembers(L,[Atual|BetterS],N),
 					appends(N,[Atual|BetterS],Betters).
+aStarManhatham(Paths,Sol) :-
+						solutionIsHere(Paths,Sol).
 aStarManhatham(Paths,Sol) :- 
+						not(solutionIsHere(Paths,_)),
 						findBetterManhatham(Paths,Better,Rest),
-						not(objective(Better)),
 						expand(Better,Betters),
 						append(Betters,Rest,L3),
 						aStarManhatham(L3,Sol).
-aStarManhatham(Paths,Sol) :-
-						write('really, I am here'),nl,
-						findBetterManhatham(Paths,Better,_),
-						write('Or maybe not'),nl,
-						objective(Better),
-						write(Better),nl,
-						Sol is Better.
+
+solutionIsHere([[X|XS]|_], L) :- objective(X),reverse([X|XS],L).
+solutionIsHere([[X|_]|R], K) :-
+				not(objective(X)),
+				solutionIsHere(R,K).
 
 
+/*
+aStarMislead(Paths,Sol) :-
+						solutionIsHere(Paths,Sol).
+aStarMislead(Paths,Sol) :- 
+						not(solutionIsHere(Paths,_)),
+						findBetterMislead(Paths,Better,Rest),
+						expand(Better,Betters),
+						append(Betters,Rest,L3),
+						aStarMislead(L3,Sol).
 
+*/
 
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
-sol3(I) :- aStarManhatham([I],Sol),printSolution(Sol),!.
+sol3(I) :- aStarManhatham([[I]],Sol),printSolution(Sol),!.
 %sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
 
+/*
 
+treino : [1,2,3,4,5,6,7,8,blank]
+	 [1,2,3,4,5,6,7,blank,8]
+	 [1,8,2,blank,4,3,7,6,5]
+
+Todos passam no 1 teste, mas a busca em profundidade falha miseravelmente
+no segundo, exatamente por ser sensivel a ordem especifica com que as relações são escritas
+e pelo alto tamanho potencial de uma descida a arvore. (algoritmo teimoso, demora
+demais para perceber que esta errado)
+
+A busca em largura e a A* com manhatham se comportam bem nesses casos, com um pequeno
+ganho de velocidade na A*, embora tenham tido casos de teste que explodiram em consumo
+de memória na busca em largura, exatamente pela necessidade desta de expandir todos os
+niveis da arvore antes de continuar.
+
+*/
 
