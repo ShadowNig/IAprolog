@@ -60,6 +60,8 @@ prettyPrint([X,Y,Z|XS]) :- myWrite(X), write(" "), myWrite(Y),write(" "), myWrit
 
 printSolution([]).
 printSolution([T|TS]) :- prettyPrint(T), printSolution(TS).
+correctDoublePosition(blank,[2,2]) :- !.
+correctDoublePosition(X,[P1,P2]) :- number(X),W is X-1,P1 is div(W,3), P2 is mod(W,3).
 
 
 %resolution algorithms
@@ -97,10 +99,124 @@ breadthFirst([[X|XS]|LS], Sol) :-
     breadthFirst(L4,Sol).
 
 
+manhatham([X|_],MX) :- objective(G), manhathamAux(X,G,MX).
+manhathamAux([],[],0).
+manhathamAux([X|L],[G1|GS],MX) :-
+				manhathamAux(L,GS,MXR),
+				correctDoublePosition(X,[A1,A2]),
+				correctDoublePosition(G1,[B1,B2]),
+				Diffx is A1-B1,
+				Diffy is A2-B2,
+				Absx is abs(Diffx),
+				Absy is abs(Diffy),
+				MX is MXR+Absx+Absy.
+			
+			
+
+findBetterManhatham([Unique],Unique,[]) :- !.
+findBetterManhatham([X,Y|L],Bet,[Y|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					manhatham(X,MX),
+					manhatham(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX > RY,
+					findBetterManhatham([X|L],Bet,R).
+findBetterManhatham([X,Y|L],Bet,[X|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					manhatham(X,MX),
+					manhatham(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX =< RY,
+					findBetterManhatham([Y|L],Bet,R).
+
+notMembers([],_,[]).
+notMembers([X|XS],L,YS) :- member(X,L),notMembers(XS,L,YS).
+notMembers([X|XS],L,[X|YS]) :- not(member(X,L)), notMembers(XS,L,YS).
+
+appends([],_,[]).
+appends([X|XS],L,[[X|L]|K]) :-
+				appends(XS,L,K).
+
+expand([Atual|BetterS],Betters) :-
+					findall(X,next(Atual,X),L),
+					notMembers(L,[Atual|BetterS],N),
+					appends(N,[Atual|BetterS],Betters).
+aStarManhatham(Paths,Sol) :-
+						solutionIsHere(Paths,Sol).
+aStarManhatham(Paths,Sol) :- 
+						not(solutionIsHere(Paths,_)),
+						findBetterManhatham(Paths,Better,Rest),
+						expand(Better,Betters),
+						append(Betters,Rest,L3),
+						aStarManhatham(L3,Sol).
+
+solutionIsHere([[X|XS]|_], L) :- objective(X),reverse([X|XS],L).
+solutionIsHere([[X|_]|R], K) :-
+				not(objective(X)),
+				solutionIsHere(R,K).
+
+
+
+aStarMislead(Paths,Sol) :-
+						solutionIsHere(Paths,Sol).
+aStarMislead(Paths,Sol) :- 
+						not(solutionIsHere(Paths,_)),
+						findBetterMislead(Paths,Better,Rest),
+						expand(Better,Betters),
+						append(Betters,Rest,L3),
+						aStarMislead(L3,Sol).
+mislead([X|_],MX) :- objective(G),misleadAux(X,G,MX).
+
+misleadAux([],[],0).
+misleadAux([X|Y],[X|Z],K) :- misleadAux(Y,Z,K).
+misleadAux([X|Y],[Z|W],R) :- X \= Z, misleadAux(Y,W,K), R is K+1.
+findBetterMislead([Unique],Unique,[]) :- !.
+findBetterMislead([X,Y|L],Bet,[Y|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					mislead(X,MX),
+					mislead(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX > RY,
+					findBetterMislead([X|L],Bet,R).
+findBetterMislead([X,Y|L],Bet,[X|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					mislead(X,MX),
+					mislead(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX =< RY,
+					findBetterMislead([Y|L],Bet,R).
+
+
 
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
+sol3(I) :- aStarManhatham([[I]],Sol),printSolution(Sol),!.
+sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
 
+/*
 
+treino : [1,2,3,4,5,6,7,8,blank]
+	 [1,2,3,4,5,6,7,blank,8] <-- a busca em profundidade demora horrores e retorna uma
+	                             uma solução muito diferente da ótima.
+	 [1,8,2,blank,4,3,7,6,5] <-- a busca em profundidade nem volta.
 
+Todos passam no 1 teste, mas a busca em profundidade falha miseravelmente
+no segundo, exatamente por ser sensivel a ordem especifica com que as relações são escritas
+e pelo alto tamanho potencial de uma descida a arvore. (algoritmo teimoso, demora
+demais para perceber que esta errado)
+
+A busca em largura e a A* com manhatham se comportam bem nesses casos, com um pequeno
+ganho de velocidade na A*, embora tenham tido casos de teste que explodiram em consumo
+de memória na busca em largura, exatamente pela necessidade desta de expandir todos os
+niveis da arvore antes de continuar.
+
+*/
 
