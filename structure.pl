@@ -160,7 +160,7 @@ solutionIsHere([[X|_]|R], K) :-
 				solutionIsHere(R,K).
 
 
-/*
+
 aStarMislead(Paths,Sol) :-
 						solutionIsHere(Paths,Sol).
 aStarMislead(Paths,Sol) :- 
@@ -169,19 +169,44 @@ aStarMislead(Paths,Sol) :-
 						expand(Better,Betters),
 						append(Betters,Rest,L3),
 						aStarMislead(L3,Sol).
+mislead([X|_],MX) :- objective(G),misleadAux(X,G,MX).
 
-*/
+misleadAux([],[],0).
+misleadAux([X|Y],[X|Z],K) :- misleadAux(Y,Z,K).
+misleadAux([X|Y],[Z|W],R) :- X \= Z, misleadAux(Y,W,K), R is K+1.
+findBetterMislead([Unique],Unique,[]) :- !.
+findBetterMislead([X,Y|L],Bet,[Y|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					mislead(X,MX),
+					mislead(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX > RY,
+					findBetterMislead([X|L],Bet,R).
+findBetterMislead([X,Y|L],Bet,[X|R]) :-
+					length(X,LX),
+					length(Y,LY),
+					mislead(X,MX),
+					mislead(Y,MY),
+					RX is -LX - MX,
+					RY is -LY - MY,
+					RX =< RY,
+					findBetterMislead([Y|L],Bet,R).
+
+
 
 sol(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
 sol3(I) :- aStarManhatham([[I]],Sol),printSolution(Sol),!.
-%sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
+sol4(I) :- aStarMislead([[I]],Sol),printSolution(Sol),!.
 
 /*
 
 treino : [1,2,3,4,5,6,7,8,blank]
-	 [1,2,3,4,5,6,7,blank,8]
-	 [1,8,2,blank,4,3,7,6,5]
+	 [1,2,3,4,5,6,7,blank,8] <-- a busca em profundidade demora horrores e retorna uma
+	                             uma solução muito diferente da ótima.
+	 [1,8,2,blank,4,3,7,6,5] <-- a busca em profundidade nem volta.
 
 Todos passam no 1 teste, mas a busca em profundidade falha miseravelmente
 no segundo, exatamente por ser sensivel a ordem especifica com que as relações são escritas
