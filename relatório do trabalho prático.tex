@@ -20,6 +20,13 @@ O \textit{8-Puzzle} (ou quebra-cabeça de 8 peças) é um quebra-cabeça compost
 Nosso trabalho visa resolver o 8-Puzzle utilizando algoritmos de busca implementados em Prolog.
 \\
 
+O quebra-cabeça foi implementado em formato de lista, sendo as peças de numeradas representadas por seus próprios algarismos e o espaço como \textit{"blank"}. Dessa forma, um configuração
+\begin{center}
+\includegraphics[scale=0.5]{8puzzle.png} 
+\end{center} 
+se tornaria $$[1,2,3,4,5,6,7,8,blank].$$
+\\
+
 Inicialmente, foi feito um algoritmo utilizando \textbf{busca em profundidade}. Essa abordagem não se mostrou eficiente, já que movimentava o jogo de acordo com a ordem na qual foi estabelecido os espaços vizinhos, fazendo assim uma série de movimentos desnecessários até a eventual obtenção do resultado.
 \\
 
