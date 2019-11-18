@@ -39,8 +39,6 @@ Quando a entrada é $[1,2,3,4,5,6,7,8,blank]$ também retorna sem problemas. No 
 
 A \textbf{busca ótima (busca A*)} teve o melhor resultado. Além de eficiente se mostrou mais rápida que as demais. Foi feito um algoritmo usando a \textit{Distância de Manhattan}\footnote{Dado dois vetores $X=(X_1,X_2,...,X_p)$ e $Y=(Y_1,Y_2,...,Y_p)$, a \textbf{Distância de Manhattan} é definida como o somatório dos módulos das diferenças. $$d(X,Y)= \sum_{i=1}^{p} \mid X_i - Y_i \mid$$} como estimativa de custo e outro utilizando a \textit{Distância de Hamming}\footnote{A \textbf{Distância de Hamming} entre duas strings de mesmo comprimento é o número de posições nas quais elas diferem entre si.}.
 
-Utilizando a Distância de Manhattan, os dois primeiros exemplos de entrada,  $[1,2,3,4,5,6,7,8,blank]$ e $[1,2,3,4,5,6,7,blank,8]$, se comportam da mesma maneira que a busca em largura.
-
-Utilizando a Distância de Hamming, todos os retornos foram semelhantes ao da busca em largura.
+Utilizando tanto a \textit{Distância de Manhattan} quanto a \textit{Distância de Hamming}, todos os retornos foram semelhantes ao da busca em largura.
 
 \end{document}
