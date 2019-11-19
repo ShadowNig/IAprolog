@@ -194,20 +194,19 @@ findBetterMislead([X,Y|L],Bet,[X|R]) :-
 					RX =< RY,
 					findBetterMislead([Y|L],Bet,R).
 
-expand([Init_Point,Node|Path],New_Paths):-
-    findall([Aux,NewNode,Node|Path]),(sc(CInt,Node,NewNode),isNotMember(NewNode,[Node,Path]),Aux is Init + CInt),New_paths).
+
 
 branch_bound(No,Path,Sol):-
     objective(No),
     reverse([No|Path],Sol).
-branch_bound(No,Path2,Sol):-   
-    %putFront(I,Path2,Sol2),
-    %append(Path2,Sol2,New_Path),
-    expand(Path2,New_Path),
-    append(Path2,New_Path,Full_Path),
-    depthFirst(Full_Path,[],Old_Path),
-    branch_bound(Old_Path,Rec_Sol,Sol).
-
+branch_bound(No,Path,Sol):-
+    expand([No,Path],New_Path),
+    append(Path,New_Path,Full_Path),
+    depthFirst(No,Full_Path,S),
+    branch_bound(No,S,Sol).
+    
+    
+    
 
 sol1(I) :- depthFirst(I,[],S), printSolution(S),!.
 sol2(I) :- breadthFirst([[I]], Sol),printSolution(Sol),!.
