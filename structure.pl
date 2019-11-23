@@ -202,8 +202,23 @@ branch_bound(No,Path,Sol):-
 branch_bound(No,Path,Sol):-
     expand([No,Path],New_Path),
     append(Path,New_Path,Full_Path),
-    depthFirst(No,Full_Path,S),
+    %depthFirst(No,Full_Path,S),
+    quick_sort_prolog(No,S),
     branch_bound(No,S,Sol).
+
+partitionby(_,[],[],[]).
+partitionby(X,[Y|Io],[Y|Small],Big):-
+    find_big(X,Y).!,
+partitionby
+
+quick_sort_prolog(Io,If):-
+    quick_sort(Io,If).
+quick_sort([],[]).
+quick_sort([X|Io],S):-
+    partitionby(X,Io,Big,Small),
+    quick_sort(Small,Ord_Small),
+    quick_sort(Big,Ord_Big),
+    append(Ord_Small,[X|Ord_Big],S).
     
     
     
