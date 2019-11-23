@@ -64,6 +64,8 @@ correctDoublePosition(blank,[2,2]) :- !.
 correctDoublePosition(X,[P1,P2]) :- number(X),W is X-1,P1 is div(W,3), P2 is mod(W,3).
 
 
+find_bigger([X|_],[Y|_]):- X > Y.
+
 %resolution algorithms
 
 depthFirst(I,S,Sol) :-
@@ -209,7 +211,10 @@ branch_bound(No,Path,Sol):-
 partitionby(_,[],[],[]).
 partitionby(X,[Y|Io],[Y|Small],Big):-
     find_big(X,Y).!,
-partitionby
+partitionby(X,Io,Small,Big).
+partitionby(X,[Y|Io],Small,[Y|Big]):-
+    partitionby(X,Io,Small,Big).
+
 
 quick_sort_prolog(Io,If):-
     quick_sort(Io,If).
